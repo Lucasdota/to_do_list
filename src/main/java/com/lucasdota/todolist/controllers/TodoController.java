@@ -1,7 +1,10 @@
 package com.lucasdota.todolist.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.lucasdota.todolist.entities.Todo;
 import com.lucasdota.todolist.services.TodoService;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @RestController
 @RequestMapping("/todos")
 public class TodoController {
@@ -24,22 +29,30 @@ public class TodoController {
 	}
 	
 	@PostMapping
-	List<Todo> create(@RequestBody Todo todo) {
-		return todoService.create(todo);
-	}
+    public ResponseEntity<Todo> create(@RequestBody Todo todo) {
+        Todo createdTodo = todoService.create(todo);
+        return new ResponseEntity<>(createdTodo, HttpStatus.CREATED);
+    }
 
 	@GetMapping
 	List<Todo> list() {	
 		return todoService.list();
 	}
 
-	@PutMapping
-	List<Todo> update(@RequestBody Todo todo) {
-		return todoService.update(todo);
-	}
+	@PutMapping("/{id}")
+    public ResponseEntity<Todo> update(@PathVariable("id") Long id, @RequestBody Todo todo) {
+        Optional<Todo> updatedTodo = todoService.update(id, todo);
+        return updatedTodo.map(value -> new ResponseEntity<>(value, HttpStatus.OK))
+                          .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
 
-	@DeleteMapping("{id}")
-	List<Todo> delete(@PathVariable("id") Long id) {
-		return todoService.delete(id);
-	}
+	@DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
+        try {
+            todoService.delete(id);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } catch (EntityNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

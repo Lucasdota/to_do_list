@@ -1,12 +1,15 @@
 package com.lucasdota.todolist.services;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.lucasdota.todolist.entities.Todo;
 import com.lucasdota.todolist.repositories.TodoRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class TodoService {
@@ -16,9 +19,8 @@ public class TodoService {
 		this.todoRepository = todoRepository;
 	}
 	
-	public List<Todo> create(Todo todo) {
-		todoRepository.save(todo);
-		return list();
+	public Todo create(Todo todo) {
+		return todoRepository.save(todo);
 	}
 
 	public List<Todo> list() {
@@ -26,13 +28,18 @@ public class TodoService {
 		return todoRepository.findAll(sort);
 	}
 
-	public List<Todo> update(Todo todo) {
-		todoRepository.save(todo);
-		return list();
+	public Optional<Todo> update(Long id, Todo todo) {
+		if (!todoRepository.existsById(id)) {
+        	return Optional.empty();
+		}
+		todo.setId(id);
+		return Optional.of(todoRepository.save(todo));
 	}
 
-	public List<Todo> delete(Long id) {
+	public void delete(Long id) {
+		if (!todoRepository.existsById(id)) {
+			throw new EntityNotFoundException("Todo not found with id: " + id);
+		}
 		todoRepository.deleteById(id);
-		return list();
 	}
 }

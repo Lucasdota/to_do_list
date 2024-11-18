@@ -2,23 +2,33 @@ package com.lucasdota.todolist.entities;
 
 import java.io.Serializable;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
-@Table(name = "tb_user")
+@Table(name = "user")
 public class User implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@NotBlank(message = "Name is mandatory")
 	private String name;
+	@Email(message = "Email should be valid")
 	private String email;
+	@NotBlank(message = "Password is mandatory")
 	private String password;
+
+	public User() {
+	}
 
 	public User(Long id, String name, String email, String password) {
 		super();
@@ -50,8 +60,8 @@ public class User implements Serializable {
 		return password;
 	}
 	public void setPassword(String password) {
-		this.password = password;
-	}
+    this.password = new BCryptPasswordEncoder().encode(password);
+}
 
 	@Override
 	public int hashCode() {
