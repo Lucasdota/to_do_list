@@ -23,6 +23,7 @@ public class Todo {
 
 	@Size(max = 255, message = "Description cannot exceed 255 characters")
 	@Column(name = "description", length = 255)
+	@NotBlank(message = "Description cannot be empty")
 	private String description;
 
 	private boolean done;

@@ -20,6 +20,11 @@ public class TodoService {
 	}
 	
 	public Todo create(Todo todo) {
+		// Check if a task with the same name already exists
+		if (todoRepository.findByName(todo.getName()).isPresent()) {
+			throw new IllegalArgumentException("A task with the name '" + todo.getName() + "' already exists.");
+		}
+
 		return todoRepository.save(todo);
 	}
 
@@ -27,6 +32,10 @@ public class TodoService {
 		Sort sort = Sort.by("id");
 		return todoRepository.findAll(sort);
 	}
+
+	public Optional<Todo> findById(Long id) {
+        return todoRepository.findById(id);
+    }
 
 	public Optional<Todo> update(Long id, Todo todo) {
 		if (!todoRepository.existsById(id)) {
