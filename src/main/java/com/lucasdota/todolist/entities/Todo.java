@@ -5,8 +5,11 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Entity
@@ -16,17 +19,19 @@ public class Todo {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-
 	@Column(name = "name", nullable = false, length = 100)
 	@NotBlank(message = "Name cannot be empty")
 	private String name;
-
 	@Size(max = 255, message = "Description cannot exceed 255 characters")
 	@Column(name = "description", length = 255)
 	@NotBlank(message = "Description cannot be empty")
 	private String description;
-
 	private boolean done;
+	@ManyToOne
+	@JoinColumn(name = "user_id", nullable = false)
+	@NotNull(message = "User cannot be null")
+	private User user;
+
 
 	public Todo() {
 	}
@@ -53,6 +58,12 @@ public class Todo {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public User getUser() {
+		return user;
+	}
+	public void setUser(User user) {
+		this.user = user;
 	}
 	public boolean isDone() {
 		return done;

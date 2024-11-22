@@ -19,7 +19,10 @@ public class TodoService {
 		this.todoRepository = todoRepository;
 	}
 	
-	public Todo create(Todo todo) {
+	public Todo create(String name, String desc) {
+
+		Todo todo = new Todo(name, desc);
+
 		// Check if a task with the same name already exists
 		if (todoRepository.findByName(todo.getName()).isPresent()) {
 			throw new IllegalArgumentException("A task with the name '" + todo.getName() + "' already exists.");
