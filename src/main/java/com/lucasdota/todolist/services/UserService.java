@@ -46,6 +46,10 @@ public class UserService {
 		if (!userRepository.existsById(id)) {
 			throw new EntityNotFoundException("User not found with id " + id);
 		}
+		// First, delete all Todos associated with the user
+        List<Todo> todos = todoRepository.findByUserId(id);
+        todoRepository.deleteAll(todos);
+
 		userRepository.deleteById(id);
 	}
 
@@ -82,16 +86,21 @@ public class UserService {
 
 	public void deleteTodoForUser(Long userId, Long todoId) {
 		User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+				.orElseThrow(() -> new EntityNotFoundException("User  not found with id: " + userId));
 
-        Todo todo = todoRepository.findById(todoId)
-                .orElseThrow(() -> new EntityNotFoundException("Todo not found with id: " + todoId));
+		Todo todo = todoRepository.findById(todoId)
+				.orElseThrow(() -> new EntityNotFoundException("Todo not found with id: " + todoId));
 
 		// Check if the Todo belongs to the User
-        if (!todo.getUser().getId().equals(user.getId())) {
-            throw new EntityNotFoundException("Todo does not belong to User with id: " + userId);
-        }
-		
-		todoRepository.deleteById(todoId);
+		if (!todo.getUser ().getId().equals(user.getId())) {
+			throw new EntityNotFoundException("Todo does not belong to User with id: " + userId);
+		}
+
+		// Remove the Todo from the User's collection
+		user.getTodos().remove(todo); // This is crucial to maintain the relationship
+		userRepository.save(user); // Save the updated User entity to reflect the change
+
+		// Finally, delete the Todo
+		todoRepository.delete(todo);
 	}
 }

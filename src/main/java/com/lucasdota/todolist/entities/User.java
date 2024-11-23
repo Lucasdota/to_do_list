@@ -1,6 +1,7 @@
 package com.lucasdota.todolist.entities;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -30,7 +31,7 @@ public class User implements Serializable {
 	@Column(name = "password", nullable = false)
 	private String password;
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<Todo> todos;
+	private List<Todo> todos = new ArrayList<>();
 
 	public User() {
 	}
@@ -57,7 +58,10 @@ public class User implements Serializable {
 	}
 	public void setPassword(String password) {
     this.password = new BCryptPasswordEncoder().encode(password);
-}
+	}
+	public List<Todo> getTodos() {
+		return todos;
+	}
 
 	@Override
 	public int hashCode() {
